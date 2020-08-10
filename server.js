@@ -2,8 +2,16 @@ var express = require('express');
 var app = express();
 const playSong = require("./routes/playSong");
 const listSongs = require("./routes/listSongs")
-app.use("/static", express.static('public'));
 
+app.get("/", (req, res) => {
+    const obj = {
+        msg: "App is under development",
+        listenToSong: "http://<ip>:<port>/api/playsong/withoutranges/lol.mp3",
+    }
+    res.json(obj);
+})
+
+app.use("/static", express.static('public'));
 app.use("/api/playsong", playSong)
 app.use("/api/listsongs", listSongs)
 
