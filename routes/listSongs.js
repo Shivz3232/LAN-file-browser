@@ -1,67 +1,50 @@
 const express = require("express")
 const router = express.Router();
 const glob = require("glob");
-const cwd = process.cwd()
+const fs = require("fs");
+const duration = require("mp3-duration");
+const moment = require("moment")
 
-const getDirectories = function (src, callback) {
-    glob(src + '/**/*', callback);
-};
-
-router.get("/glob", (req, res) => {
-    getDirectories("D:\\Music\\My Music", (err, result) => {
-        if (err) {
-            console.log(err)
-        } else {
-            res.send(result)
-        }
-    })
-})
+function create(array) {
+    if (1 == 1) {
+        fs.stat('D:/Docs/API/Basic api/public/music/lol.mp3', (err, stat) => {
+            console.log("stat:", stat)
+            array.push(stat)
+        })
+    }
+}
 
 router.get('/', function (req, res) {
-    var currentDir = cwd;
-    var query = req.query.path || '';
-    if (query) currentDir = path.join(dir, query);
-    console.log("browsing ", currentDir);
-    fs.readdir(currentDir, function (err, files) {
-        if (err) {
-            throw err;
-        }
-        var data = [];
-        files
-            .forEach(function (file) {
-                try {
-                    //console.log("processing ", file);
-                    var isDirectory = fs.statSync(path.join(currentDir, file)).isDirectory();
-                    if (isDirectory) {
-                        data.push({
-                            Name: file,
-                            IsDirectory: true,
-                            Path: path.join(query, file)
-                        });
-                    } else {
-                        var ext = path.extname(file);
-                        if (program.exclude && _.contains(program.exclude, ext)) {
-                            console.log("excluding file ", file);
-                            return;
-                        }
-                        data.push({
-                            Name: file,
-                            Ext: ext,
-                            IsDirectory: false,
-                            Path: path.join(query, file)
-                        });
+
+    let collection = new Array();
+
+    glob("D:\\Docs\\API\\Basic api\\public" + "/**/*", async (err, results) => {
+        for (let i = 0; i < results.length; i++) {
+            if (results[i].match(".mp3$") || results[i].match(".ogg$") || results[i].match(".wav$")) {
+                fs.stat(results[i], async (err, stat) => {
+                    if (!err) {
+                        duration(results[i], async (err, length) => {
+                            if (!err) {
+                                let minutes = Math.floor(length / 60)
+                                let remainingSeconds = Math.floor(length) - minutes * 60
+
+                                let file = new Object()
+                                file.key = results[i]
+                                file.duration = String(minutes) + ' : ' + String(remainingSeconds)
+                                file.lastListend = moment(stat.atime).fromNow()
+
+                                collection.push(file)
+                                console.log(collection)
+                            }
+                        })
                     }
+                })
+            }
+        }
+        console.log(collection);
+    })
 
-                } catch (e) {
-                    console.log(e);
-                }
-
-            });
-        data = _.sortBy(data, function (f) {
-            return f.Name
-        });
-        res.json(data);
-    });
+    res.send(collection)
 });
 
 module.exports = router

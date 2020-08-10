@@ -2,6 +2,7 @@ var express = require('express');
 var app = express();
 const playSong = require("./routes/playSong");
 const listSongs = require("./routes/listSongs")
+const serveIndex = require("serve-index")
 
 app.get("/", (req, res) => {
     const obj = {
@@ -11,7 +12,10 @@ app.get("/", (req, res) => {
     res.json(obj);
 })
 
-app.use("/static", express.static('public'));
+app.use('/ftp', express.static("D:\\Music\\My Music"), serveIndex("D:\\Music\\My Music", {
+    'icons': true
+}));
+// app.use("/static", express.static('public'));
 app.use("/api/playsong", playSong)
 app.use("/api/listsongs", listSongs)
 
