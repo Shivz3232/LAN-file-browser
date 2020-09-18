@@ -9,7 +9,7 @@ app.get("/", (req, res) => {
         msg: "App is under development",
         listenToSong: "http://<ip>:<port>/api/playsong/withoutranges/lol.mp3",
     }
-    res.json(obj);
+    res.status(200).json(obj);
 })
 
 app.use('/ftp', express.static("D:\\Music\\My Music"), serveIndex("D:\\Music\\My Music", {
